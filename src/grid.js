@@ -65,7 +65,7 @@ class GridComponent extends Component {
 
   render() {
     return (
-        <canvas id="canvas" width="200" height="100"></canvas>
+        false
     )
   }
 };

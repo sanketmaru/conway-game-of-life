@@ -11,6 +11,19 @@ class App extends Component {
     };
     this.handleRowsChange = this.handleRowsChange.bind(this);
     this.handleColsChange = this.handleColsChange.bind(this);
+    this.generate = this.generate.bind(this);
+    this.clear = this.clear.bind(this);
+  }
+
+  generate() {
+
+  }
+
+  clear() {
+    this.setState({
+      rows: 20,
+      cols: 20
+    });
   }
 
   handleRowsChange(event) {
@@ -32,6 +45,12 @@ class App extends Component {
           <div className="col-xs-6">
             No of Columns :-
             <input type="text" value={this.state.cols} onChange={this.handleColsChange} />
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-xs-6">
+            <input type="button" className="btn btn-primary" value="Generate" onClick={this.generate} />
+            <input type="button" className="btn btn-primary" value="Clear" onClick={this.clear} />
           </div>
         </div>
         <GridComponent rows={this.state.rows} cols={this.state.cols} />
