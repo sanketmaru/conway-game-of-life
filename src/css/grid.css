@@ -7,3 +7,7 @@
 .grid td.clicked {
     background-color:gray;
 }
+
+.grid td.unclicked {
+    background-color:none;
+}
