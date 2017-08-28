@@ -8,8 +8,10 @@ class GridComponent extends Component {
     super(props);
     this.initGrid = this.initGrid.bind(this);
     this.generate = this.generate.bind(this);
+    this.stop = this.stop.bind(this);
     this.clickableGrid = this.clickableGrid.bind(this);
     this.gridArr = [];
+    this.generateTimeout = null;
   }
 
   initGrid(rows, columns) {
@@ -66,7 +68,8 @@ class GridComponent extends Component {
 
   generate() {
     
-    for(var i=0;i<this.gridArr.length;i++) {
+    var oldGridArr = this.gridArr.slice();
+    for(var i=0;i<oldGridArr.length;i++) {
       var gridRow = this.gridArr[i];
       for(var j=0;j<gridRow.length;j++) {
         
@@ -74,9 +77,7 @@ class GridComponent extends Component {
         // 1. If the cell is alive, then it stays alive if it has either 2 or 3 live neighbors
         // 2. If the cell is dead, then it springs to life only in the case that it has 3 live neighbors
         // find cell adjacent values;
-        var adjacentCells = ['this.gridArr[i][j+1]', 'this.gridArr[i][j-1]', 'this.gridArr[i+1][j]', 'this.gridArr[i+1][j+1]',
-        'this.gridArr[i+1][j-1]', 
-        'this.gridArr[i-1][j]', 'this.gridArr[i-1][j-1]', 'this.gridArr[i-1][j+1]'];
+        var adjacentCells = ['oldGridArr[i][j+1]', 'oldGridArr[i][j-1]', 'oldGridArr[i+1][j]', 'oldGridArr[i+1][j+1]','oldGridArr[i+1][j-1]', 'oldGridArr[i-1][j]', 'oldGridArr[i-1][j-1]', 'oldGridArr[i-1][j+1]'];
 
         var adjacentValues = [];
         for(var k=0;k<adjacentCells.length;k++) {
@@ -90,7 +91,7 @@ class GridComponent extends Component {
         }
         
         var neighbourCellAlive = adjacentValues.length;
-        if(this.gridArr[i][j]) {
+        if(oldGridArr[i][j]) {
           this.gridArr[i][j] = neighbourCellAlive == 2 || neighbourCellAlive == 3 ? 1 : 0; // 1st condition
         } else {
           this.gridArr[i][j] = neighbourCellAlive == 3 ? 1 : 0;
@@ -108,16 +109,21 @@ class GridComponent extends Component {
     }
 
     // settimeout 2000 to see the effect
-    this.clearTimeout = setTimeout(function() {
+    this.generateTimeout = setTimeout(function() {
       console.log('Waiting for next generation');
       this.generate();
     }.bind(this), 3000);
+  }
+
+  stop() {
+    clearTimeout(this.generateTimeout);
   }
 
   render() {
     return (
       <div className="row">
         <div className="col-xs-6">
+          <input type="button" className="btn btn-primary" value="Stop" onClick={this.stop} />
           <input type="button" className="btn btn-primary" value="Generate" onClick={this.generate} />
         </div>
       </div>
