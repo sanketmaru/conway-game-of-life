@@ -7,6 +7,9 @@ class GridComponent extends Component {
   constructor(props) {
     super(props);
     this.initGrid = this.initGrid.bind(this);
+    this.generate = this.generate.bind(this);
+    this.clickableGrid = this.clickableGrid.bind(this);
+    this.gridArr = [];
   }
 
   initGrid(rows, columns) {
@@ -15,73 +18,41 @@ class GridComponent extends Component {
     if(!newRows || !newCols){
       return;
     }
-    var lastClicked;
-    var grid = clickableGrid(newRows,newCols,function(el,row,col,i){
-        console.log("You clicked on element:",el);
-        console.log("You clicked on row:",row);
-        console.log("You clicked on col:",col);
-        console.log("You clicked on item #:",i);
-
-        el.className= el.className === 'clicked' ? 'unclicked' : 'clicked';
-
-        lastClicked = el;
-    });
+    this.gridArr = [];
+    var grid = this.clickableGrid(newRows,newCols);
     var existingGrid = document.getElementById('grid');
     if(existingGrid) {
       existingGrid.remove();
     }
-    document.body.appendChild(grid);
+    document.body.appendChild(grid); 
+  }
 
-
-    function clickableGrid( rows, cols, callback ){
-        var i=0;
-        var grid = document.createElement('table');
-        grid.className = 'grid';
-        grid.id = 'grid';
-        for (var row = 0; row < rows; ++row){
-            var tr = grid.appendChild(document.createElement('tr'));
-            for (var col = 0; col < cols; ++col){
-                var td = document.createElement('td');
-                td.id = row + "" + col;
-
-                // pseudo code :-
-
-                // 1. From current row select the parent row and the next row and each cell will have a unique id.
-                // 2. From the id , deduct the no of cols to reach to its adjacent top , -1 to left top diagonal , +1 to right top diagonal.
-                // 3. Frm the id in #1 , add the no of cols to reach to its adj btm , -1 to left btm diag, +1 to right btm diag.
-                // 4. repeat this process for all the cells at the same time and generate a new board and remove the existing one.
-                // 4.a store the existing one in pouchdb so history of generations can be shown , from pouch store to couch. // offline storeage.
-                
-                var parentArr = [];
-                var siblingsArr = [];
-                var childrensArr = [];
-                var parentRow, childRow;
-
-                if(row > 0) {
-                  parentRow = row - 1;
-                  childRow = row + 1;
+  clickableGrid( rows, cols, callback ){
+    
+    // storage in grids [ [0,1,2,3], [0,1,2,3] ]
+    var grid = document.createElement('table');
+    grid.className = 'grid';
+    grid.id = 'grid';
+    for (var row = 0; row < rows; ++row){
+      this.gridArr[row] = [];
+        var tr = grid.appendChild(document.createElement('tr'));
+        for (var col = 0; col < cols; ++col){
+            this.gridArr[row][col] = 0; // by default set as 0 , if clicked set as 1
+            
+            var td = document.createElement('td');
+            td.id = "cell" + row + "" + col;
+            var cell = tr.appendChild(td);
+            var self = this;
+            cell.addEventListener('click',(function(row,col){
+                return function(event){
+                  event.target.className = event.target.className === 'clicked' ? 'unclicked' : 'clicked';
+                  self.gridArr[row][col] = self.gridArr[row][col] === 1 ? 0 : 1;
+                  console.log(self.gridArr);
                 }
-
-                for(var i=0 ;i<=col;i++) {
-
-                }
-
-                var neighbours = {
-                  parent : [], // diagonal , top
-                  siblings : [], // sides
-                  childrens : [] // diagonal , bottom
-                }
-                var cell = tr.appendChild(td);
-                ++i;
-                cell.addEventListener('click',(function(el,row,col,i){
-                    return function(){
-                        callback(el,row,col,i);
-                    }
-                })(cell,row,col,i),false);
-            }
+            })(row,col));
         }
-        return grid;
     }
+    return grid;
   }
 
   componentDidMount() {
@@ -93,9 +64,63 @@ class GridComponent extends Component {
     this.initGrid(props.rows, props.cols);
   }
 
+  generate() {
+    
+    for(var i=0;i<this.gridArr.length;i++) {
+      var gridRow = this.gridArr[i];
+      for(var j=0;j<gridRow.length;j++) {
+        
+        // conway logic
+        // 1. If the cell is alive, then it stays alive if it has either 2 or 3 live neighbors
+        // 2. If the cell is dead, then it springs to life only in the case that it has 3 live neighbors
+        // find cell adjacent values;
+        var adjacentCells = ['this.gridArr[i][j+1]', 'this.gridArr[i][j-1]', 'this.gridArr[i+1][j]', 'this.gridArr[i+1][j+1]',
+        'this.gridArr[i+1][j-1]', 
+        'this.gridArr[i-1][j]', 'this.gridArr[i-1][j-1]', 'this.gridArr[i-1][j+1]'];
+
+        var adjacentValues = [];
+        for(var k=0;k<adjacentCells.length;k++) {
+          try {
+            var adjacentVal = eval(adjacentCells[k]);
+            if(adjacentVal) {
+              adjacentValues.push(adjacentVal);
+            }
+          }catch(e) {
+          }
+        }
+        
+        var neighbourCellAlive = adjacentValues.length;
+        if(this.gridArr[i][j]) {
+          this.gridArr[i][j] = neighbourCellAlive == 2 || neighbourCellAlive == 3 ? 1 : 0; // 1st condition
+        } else {
+          this.gridArr[i][j] = neighbourCellAlive == 3 ? 1 : 0;
+        }
+
+        var elem = document.getElementById("cell" + i + "" + j);
+        if(this.gridArr[i][j]) {  
+          elem.className = 'clicked';
+        } else {
+          elem.className = 'unclicked';
+        }
+
+      }
+      
+    }
+
+    // settimeout 2000 to see the effect
+    this.clearTimeout = setTimeout(function() {
+      console.log('Waiting for next generation');
+      this.generate();
+    }.bind(this), 3000);
+  }
+
   render() {
     return (
-        false
+      <div className="row">
+        <div className="col-xs-6">
+          <input type="button" className="btn btn-primary" value="Generate" onClick={this.generate} />
+        </div>
+      </div>
     )
   }
 };

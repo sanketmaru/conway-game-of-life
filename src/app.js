@@ -11,12 +11,7 @@ class App extends Component {
     };
     this.handleRowsChange = this.handleRowsChange.bind(this);
     this.handleColsChange = this.handleColsChange.bind(this);
-    this.generate = this.generate.bind(this);
     this.clear = this.clear.bind(this);
-  }
-
-  generate() {
-
   }
 
   clear() {
@@ -49,7 +44,6 @@ class App extends Component {
         </div>
         <div className="row">
           <div className="col-xs-6">
-            <input type="button" className="btn btn-primary" value="Generate" onClick={this.generate} />
             <input type="button" className="btn btn-primary" value="Clear" onClick={this.clear} />
           </div>
         </div>
