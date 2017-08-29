@@ -11,7 +11,6 @@ class App extends Component {
     };
     this.handleRowsChange = this.handleRowsChange.bind(this);
     this.handleColsChange = this.handleColsChange.bind(this);
-    this.clear = this.clear.bind(this);
   }
 
   clear() {
@@ -31,20 +30,19 @@ class App extends Component {
 
   render() {
     return (
-      <div>
+      <div> 
         <div className="row">
           <div className="col-xs-6">
-            No of Rows :-
+            <label> Enter Rows</label>
             <input type="text" value={this.state.rows} onChange={this.handleRowsChange} />
-          </div>
-          <div className="col-xs-6">
-            No of Columns :-
+            <label> Enter Columns </label>
             <input type="text" value={this.state.cols} onChange={this.handleColsChange} />
           </div>
+          
         </div>
         <div className="row">
           <div className="col-xs-6">
-            <input type="button" className="btn btn-primary" value="Clear" onClick={this.clear} />
+            
           </div>
         </div>
         <GridComponent rows={this.state.rows} cols={this.state.cols} />

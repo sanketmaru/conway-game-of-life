@@ -10,6 +10,7 @@ class GridComponent extends Component {
     this.generate = this.generate.bind(this);
     this.stop = this.stop.bind(this);
     this.clickableGrid = this.clickableGrid.bind(this);
+    this.clear = this.clear.bind(this);
     this.gridArr = [];
     this.generateTimeout = null;
   }
@@ -49,7 +50,6 @@ class GridComponent extends Component {
                 return function(event){
                   event.target.className = event.target.className === 'clicked' ? 'unclicked' : 'clicked';
                   self.gridArr[row][col] = self.gridArr[row][col] === 1 ? 0 : 1;
-                  console.log(self.gridArr);
                 }
             })(row,col));
         }
@@ -62,21 +62,16 @@ class GridComponent extends Component {
   }
 
   componentWillReceiveProps(props) {
-    console.log(props);
     this.initGrid(props.rows, props.cols);
   }
 
   generate() {
     
-    var oldGridArr = this.gridArr.slice();
+    var oldGridArr = JSON.parse(JSON.stringify(this.gridArr));
     for(var i=0;i<oldGridArr.length;i++) {
       var gridRow = this.gridArr[i];
       for(var j=0;j<gridRow.length;j++) {
         
-        // conway logic
-        // 1. If the cell is alive, then it stays alive if it has either 2 or 3 live neighbors
-        // 2. If the cell is dead, then it springs to life only in the case that it has 3 live neighbors
-        // find cell adjacent values;
         var adjacentCells = ['oldGridArr[i][j+1]', 'oldGridArr[i][j-1]', 'oldGridArr[i+1][j]', 'oldGridArr[i+1][j+1]','oldGridArr[i+1][j-1]', 'oldGridArr[i-1][j]', 'oldGridArr[i-1][j-1]', 'oldGridArr[i-1][j+1]'];
 
         var adjacentValues = [];
@@ -91,10 +86,26 @@ class GridComponent extends Component {
         }
         
         var neighbourCellAlive = adjacentValues.length;
-        if(oldGridArr[i][j]) {
-          this.gridArr[i][j] = neighbourCellAlive == 2 || neighbourCellAlive == 3 ? 1 : 0; // 1st condition
-        } else {
-          this.gridArr[i][j] = neighbourCellAlive == 3 ? 1 : 0;
+        var gridValOld = oldGridArr[i][j];
+
+        //Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
+        if(neighbourCellAlive < 2 && gridValOld)  {
+          this.gridArr[i][j] = 0 
+        }
+
+        //Any live cell with two or three live neighbours lives on to the next generation.
+        if( (neighbourCellAlive == 2 || neighbourCellAlive == 3 ) && gridValOld)  {
+          this.gridArr[i][j] = 1 
+        }
+
+        //Any live cell with more than three live neighbours dies, as if by overpopulation.
+        if( neighbourCellAlive > 3 && gridValOld)  {
+          this.gridArr[i][j] = 0 
+        }
+
+        //Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+        if( neighbourCellAlive == 3 && !gridValOld)  {
+          this.gridArr[i][j] = 1 
         }
 
         var elem = document.getElementById("cell" + i + "" + j);
@@ -112,7 +123,11 @@ class GridComponent extends Component {
     this.generateTimeout = setTimeout(function() {
       console.log('Waiting for next generation');
       this.generate();
-    }.bind(this), 3000);
+    }.bind(this), 300);
+  }
+
+  clear() {
+    
   }
 
   stop() {
@@ -125,6 +140,7 @@ class GridComponent extends Component {
         <div className="col-xs-6">
           <input type="button" className="btn btn-primary" value="Stop" onClick={this.stop} />
           <input type="button" className="btn btn-primary" value="Generate" onClick={this.generate} />
+          <input type="button" className="btn btn-primary" value="Clear" onClick={this.clear} />
         </div>
       </div>
     )
