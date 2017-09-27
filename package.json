@@ -34,7 +34,7 @@
     "postcss-loader": "^1.0.0",
     "url-loader": "^0.5.9",
     "webpack": "^3.5.6",
-    "webpack-dev-server": "^2.8.0"
+    "webpack-dev-server": "^2.9.0"
   },
   "author": "Sanket Maru",
   "license": "MIT",
