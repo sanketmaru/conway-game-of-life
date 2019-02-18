@@ -30,7 +30,7 @@
     "babel-preset-react": "^6.5.0",
     "css-loader": "^0.28.6",
     "http-server": "^0.11.0",
-    "isomorphic-style-loader": "^1.0.0",
+    "isomorphic-style-loader": "^5.0.1",
     "postcss-loader": "^3.0.0",
     "url-loader": "^0.6.1",
     "webpack": "^4.0.0",
