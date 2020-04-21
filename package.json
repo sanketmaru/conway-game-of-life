@@ -33,7 +33,7 @@
     "isomorphic-style-loader": "^1.0.0",
     "postcss-loader": "^2.0.7",
     "url-loader": "^0.6.1",
-    "webpack": "^4.0.0",
+    "webpack": "^4.43.0",
     "webpack-dev-server": "^2.8.0"
   },
   "author": "Sanket Maru",
